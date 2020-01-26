@@ -12,11 +12,6 @@ describe('Utils functions:', () => {
           expect(getArgNames(func)).toEqual([]);
       });
 
-      it('should return empty array if named function have not arguments', () => {
-          function func() {};
-          expect(getArgNames(func)).toEqual([]);
-      });
-
       it('should return empty array if unnamed function have not arguments', () => {
           const func = function () {};
           expect(getArgNames(func)).toEqual([]);
