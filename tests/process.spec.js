@@ -1,10 +1,14 @@
-const { findFunction } = require('./../lib/process');
-const { runAutoComplete } = require('./../lib/utils/prompts');
+const { findFunction, prepareArgs } = require('./../lib/process');
+const { runAutoComplete, runForm } = require('./../lib/utils/prompts');
 
 jest.mock('./../lib/utils/prompts', () => ({
     runAutoComplete: jest.fn()
         .mockReturnValueOnce('prop1')
-        .mockReturnValueOnce('func')
+        .mockReturnValueOnce('func'),
+    runForm: jest.fn(() => ({
+        arg1: 'value1',
+        arg2: 'value2'
+    }))
 }));
 
 describe('Process', () => {
@@ -33,4 +37,13 @@ describe('Process', () => {
         expect(runAutoComplete).toHaveBeenNthCalledWith(1, "path", "Select path", 10, ["prop1", "prop2"]);
         expect(runAutoComplete).toHaveBeenNthCalledWith(2, "path", "Select path", 10, ["func", "prop3", "<"]);
     });
+
+    it('prepareFunction should properly ask for function arg', async () => {
+        const functionMock = (arg1, arg2) => {};
+
+        const result = await prepareArgs(functionMock);
+        expect(runForm).toHaveBeenCalledWith("args", "Enter function args", ["arg1", "arg2"], "");
+        expect(result.arg1).toEqual('value1');
+        expect(result.arg2).toEqual('value2');
+    })
 });
