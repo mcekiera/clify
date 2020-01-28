@@ -1,4 +1,4 @@
-const { findFunction, prepareArgs, run } = require('./../lib/process');
+const { findFunction, prepareArgs, runThread } = require('./../lib/process');
 const { runAutoComplete, runForm } = require('./../lib/utils/prompts');
 
 jest.mock('./../lib/utils/prompts', () => ({
@@ -54,7 +54,7 @@ describe('Process', () => {
     });
 
     it('run should properly find function, resolve args and execute function', async () => {
-        const result = await run(mock);
+        const result = await runThread(mock);
         expect(funcMock).toBeCalled();
         expect(result).toEqual('result');
     })
