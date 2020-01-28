@@ -34,18 +34,19 @@ describe('Process', () => {
   });
 
   it('findFunction should properly return function', async () => {
-    const result = await findFunction(mock);
+    const { func, path } = await findFunction(mock);
 
-    expect(result).toEqual(funcMock);
-    expect(runAutoComplete).toHaveBeenNthCalledWith(1, 'path', 'Select path', 10, ['prop1', 'prop2']);
-    expect(runAutoComplete).toHaveBeenNthCalledWith(2, 'path', 'Select path', 10, ['func', 'prop3', '<']);
+    expect(func).toEqual(funcMock);
+    expect(path).toEqual('prop1.func');
+    expect(runAutoComplete).toHaveBeenNthCalledWith(1, 'path', 'Select: ', 10, ['prop1', 'prop2']);
+    expect(runAutoComplete).toHaveBeenNthCalledWith(2, 'path', 'Select: prop1', 10, ['func', 'prop3', '<']);
   });
 
   it('prepareFunction should properly ask for function arg', async () => {
     const functionMock = (arg1, arg2) => arg1 && arg2;
 
-    const result = await prepareArgs(functionMock);
-    expect(runForm).toHaveBeenCalledWith('args', 'Enter function args', ['arg1', 'arg2'], '');
+    const result = await prepareArgs(functionMock, 'path');
+    expect(runForm).toHaveBeenCalledWith('args', 'path {', ['arg1', 'arg2'], '  }');
     expect(result.arg1).toEqual('value:arg1');
     expect(result.arg2).toEqual('value:arg2');
   });
