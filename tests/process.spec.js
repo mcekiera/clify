@@ -1,7 +1,9 @@
+
 const { findFunction, prepareArgs, runThread } = require('./../lib/process');
 
 describe('Process', () => {
-  let mock, funcMock, funcMock2;
+  let mock; let funcMock; let
+    funcMock2;
   beforeEach(() => {
     funcMock = jest.fn(() => 'result');
     funcMock2 = jest.fn();

@@ -1,3 +1,4 @@
+
 const { runCli } = require('./lib/process');
 
 const structure = {

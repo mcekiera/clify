@@ -1,3 +1,4 @@
+
 const Store = require('./../../lib/utils/store');
 
 describe('Utils Store:', () => {
