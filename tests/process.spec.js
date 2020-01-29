@@ -1,17 +1,8 @@
 const { findFunction, prepareArgs, runThread } = require('./../lib/process');
-const { runAutoComplete, runForm } = require('./../lib/utils/prompts');
-
-jest.mock('./../lib/utils/prompts', () => ({
-  runAutoComplete: jest.fn((name, message, limit, choices) => choices[0]),
-  runForm: jest.fn((name, message, choices) => choices.reduce((acc, val) => {
-    acc[val] = `value:${val}`;
-    return acc;
-  }, {})),
-}));
+const { traverse } = require('./../lib/utils/traverse');
 
 describe('Process', () => {
-  let mock; let funcMock; let
-    funcMock2;
+  let mock, funcMock, funcMock2;
   beforeEach(() => {
     funcMock = jest.fn(() => 'result');
     funcMock2 = jest.fn();
@@ -34,25 +25,46 @@ describe('Process', () => {
   });
 
   it('findFunction should properly return function', async () => {
-    const { func, path } = await findFunction(mock);
+    const actions = {
+      runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
+      traverse
+    };
+    const { func, path } = await findFunction(actions, mock);
 
     expect(func).toEqual(funcMock);
     expect(path).toEqual('prop1.func');
-    expect(runAutoComplete).toHaveBeenNthCalledWith(1, 'path', 'Select: ', 10, ['prop1', 'prop2']);
-    expect(runAutoComplete).toHaveBeenNthCalledWith(2, 'path', 'Select: prop1', 10, ['func', 'prop3', '<']);
+    expect(actions.runAutoComplete).toHaveBeenNthCalledWith(1, 'path', 'Select: ', 10, ['prop1', 'prop2']);
+    expect(actions.runAutoComplete).toHaveBeenNthCalledWith(2, 'path', 'Select: prop1', 10, ['func', 'prop3', '<']);
   });
 
   it('prepareFunction should properly ask for function arg', async () => {
+    const actions = {
+      runForm: jest.fn().mockReturnValue({
+        arg1: 'value:arg1',
+        arg2: 'value:arg2',
+      }),
+      getArgNames: jest.fn().mockReturnValue(['arg1', 'arg2'])
+    };
     const functionMock = (arg1, arg2) => arg1 && arg2;
 
-    const result = await prepareArgs(functionMock, 'path');
-    expect(runForm).toHaveBeenCalledWith('args', 'path {', ['arg1', 'arg2'], '  }');
+    const result = await prepareArgs(actions, functionMock, 'path');
+    expect(actions.runForm).toHaveBeenCalledWith('args', 'path {', ['arg1', 'arg2'], '  }');
+    expect(actions.getArgNames).toHaveBeenCalledWith(functionMock);
     expect(result.arg1).toEqual('value:arg1');
     expect(result.arg2).toEqual('value:arg2');
   });
 
   it('run should properly find function, resolve args and execute function', async () => {
-    const result = await runThread(mock);
+    const actions = {
+      runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
+      traverse,
+      runForm: jest.fn().mockReturnValue({
+        arg1: 'value:arg1',
+        arg2: 'value:arg2',
+      }),
+      getArgNames: jest.fn().mockReturnValue(['arg1', 'arg2'])
+    };
+    const result = await runThread(actions, mock);
     expect(funcMock).toBeCalled();
     expect(result).toEqual('result');
   });

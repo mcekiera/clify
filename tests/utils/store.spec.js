@@ -18,7 +18,7 @@ describe('Utils Store:', () => {
     }).toThrow(new Error('Requested property does not exists'));
   });
 
-  it('set property should be retrived with get', () => {
+  it('set property should be retrieved with get', () => {
     const object = new Store();
     object.set('test', 'test');
     expect(object.get('test')).toEqual('test');
