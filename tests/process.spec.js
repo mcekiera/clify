@@ -1,5 +1,4 @@
 const { findFunction, prepareArgs, runThread } = require('./../lib/process');
-const { traverse } = require('./../lib/utils/traverse');
 
 describe('Process', () => {
   let mock, funcMock, funcMock2;
@@ -27,7 +26,6 @@ describe('Process', () => {
   it('findFunction should properly return function', async () => {
     const actions = {
       runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
-      traverse
     };
     const { func, path } = await findFunction(actions, mock);
 
@@ -43,13 +41,11 @@ describe('Process', () => {
         arg1: 'value:arg1',
         arg2: 'value:arg2',
       }),
-      getArgNames: jest.fn().mockReturnValue(['arg1', 'arg2'])
     };
     const functionMock = (arg1, arg2) => arg1 && arg2;
 
     const result = await prepareArgs(actions, functionMock, 'path');
     expect(actions.runForm).toHaveBeenCalledWith('args', 'path {', ['arg1', 'arg2'], '  }');
-    expect(actions.getArgNames).toHaveBeenCalledWith(functionMock);
     expect(result.arg1).toEqual('value:arg1');
     expect(result.arg2).toEqual('value:arg2');
   });
@@ -57,12 +53,10 @@ describe('Process', () => {
   it('run should properly find function, resolve args and execute function', async () => {
     const actions = {
       runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
-      traverse,
       runForm: jest.fn().mockReturnValue({
         arg1: 'value:arg1',
         arg2: 'value:arg2',
       }),
-      getArgNames: jest.fn().mockReturnValue(['arg1', 'arg2'])
     };
     const result = await runThread(actions, mock);
     expect(funcMock).toBeCalled();
