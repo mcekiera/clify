@@ -18,7 +18,7 @@
         "no-console": ["error", { "allow": ["info", "warn", "error"] }],
         "strict": "off",
         "no-await-in-loop": "off",
-        "no-restricted-syntax": "off"
-
+        "no-restricted-syntax": "off",
+        "max-len": "off"
     }
 }

@@ -81,7 +81,7 @@ describe('Process', () => {
       expect(actions.runInput).not.toBeCalled();
     });
 
-    it('should execute chosen action', async () => {
+    it('should execute chosen $keep action', async () => {
       const actions = {
         after: {
           $keep: jest.fn(),
@@ -94,6 +94,21 @@ describe('Process', () => {
       expect(actions.runAutoComplete).toBeCalled();
       expect(actions.runInput).toBeCalled();
       expect(actions.after.$keep).toBeCalledWith('name', 'test');
+    });
+
+    it('should execute chosen $save action', async () => {
+      const actions = {
+        after: {
+          $save: jest.fn(),
+        },
+        runAutoComplete: jest.fn().mockReturnValue('$save'),
+        runInput: jest.fn().mockReturnValue('name'),
+      };
+
+      await runOnResult(actions, 'test');
+      expect(actions.runAutoComplete).toBeCalled();
+      expect(actions.runInput).toBeCalled();
+      expect(actions.after.$save).toBeCalledWith('name', 'test');
     });
   });
 
@@ -125,6 +140,21 @@ describe('Process', () => {
       expect(actions.resolve.listKept).toBeCalled();
       expect(actions.runAutoComplete).toBeCalled();
       expect(actions.resolve.get).toBeCalledWith('test');
+      expect(result).toEqual(['use:value', 'arg2:value']);
+    });
+
+    it('should call resolve.load if $file keyword passed', async () => {
+      const actions = {
+        runAutoComplete: jest.fn(() => 'test.json'),
+        resolve: {
+          listFiles: jest.fn(() => ['test.json']),
+          load: jest.fn(() => 'use:value'),
+        },
+      };
+      const result = await prepareArgs(actions, { arg1: '$file', arg2: 'arg2:value' });
+      expect(actions.resolve.listFiles).toBeCalled();
+      expect(actions.runAutoComplete).toBeCalled();
+      expect(actions.resolve.load).toBeCalledWith('test.json');
       expect(result).toEqual(['use:value', 'arg2:value']);
     });
   });
