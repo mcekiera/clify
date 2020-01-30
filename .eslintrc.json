@@ -1,7 +1,6 @@
 {
     "env": {
         "commonjs": true,
-        "es6": true,
         "node": true,
         "jest": true
     },
@@ -16,6 +15,7 @@
         "ecmaVersion": 2018
     },
     "rules": {
-        "no-console": ["error", { "allow": ["info", "warn", "error"] }]
+        "no-console": ["error", { "allow": ["info", "warn", "error"] }],
+        "strict": "off"
     }
 }

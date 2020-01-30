@@ -1,3 +1,5 @@
+'use strict';
+
 const { getArgNames } = require('./../../lib/utils/functions');
 
 describe('Utils functions:', () => {

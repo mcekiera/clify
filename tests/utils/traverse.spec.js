@@ -1,3 +1,5 @@
+'use strict';
+
 const { traverse } = require('./../../lib/utils/traverse');
 
 describe('Utils traverse:', () => {
