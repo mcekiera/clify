@@ -1,6 +1,6 @@
 'use strict';
 
-const { findFunction, prepareArgs, runThread } = require('./../lib/process');
+const { findFunction, prepareArgs, runThread, runOnResult } = require('./../lib/process');
 
 describe('Process', () => {
   let mock; let funcMock; let
@@ -53,7 +53,7 @@ describe('Process', () => {
     expect(result.arg2).toEqual('value:arg2');
   });
 
-  it('run should properly find function, resolve args and execute function', async () => {
+  it('runThread should properly find function, resolve args and execute function', async () => {
     const actions = {
       runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
       runForm: jest.fn().mockReturnValue({
@@ -64,5 +64,34 @@ describe('Process', () => {
     const result = await runThread(actions, mock);
     expect(funcMock).toBeCalled();
     expect(result).toEqual('result');
+  });
+
+  describe('runOnResult', () => {
+    it('should pass if $done action chosen', async () => {
+      const actions = {
+        after: {},
+        runSelect: jest.fn().mockReturnValue('$done'),
+        runInput: jest.fn(),
+      };
+
+      await runOnResult(actions, 'test');
+      expect(actions.runSelect).toBeCalled();
+      expect(actions.runInput).not.toBeCalled();
+    });
+
+    it('should execute chosen action', async () => {
+      const actions = {
+        after: {
+          '$keep': jest.fn()
+        },
+        runSelect: jest.fn().mockReturnValue('$keep'),
+        runInput: jest.fn().mockReturnValue('name'),
+      };
+
+      await runOnResult(actions, 'test');
+      expect(actions.runSelect).toBeCalled();
+      expect(actions.runInput).toBeCalled();
+      expect(actions.after.$keep).toBeCalledWith('name', 'test');
+    });
   });
 });
