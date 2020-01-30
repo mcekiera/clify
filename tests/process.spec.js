@@ -1,6 +1,8 @@
 'use strict';
 
-const { findFunction, prepareArgs, runThread, runOnResult } = require('./../lib/process');
+const {
+  findFunction, prepareArgs, runThread, runOnResult,
+} = require('./../lib/process');
 
 describe('Process', () => {
   let mock; let funcMock; let
@@ -70,26 +72,26 @@ describe('Process', () => {
     it('should pass if $done action chosen', async () => {
       const actions = {
         after: {},
-        runSelect: jest.fn().mockReturnValue('$done'),
+        runAutoComplete: jest.fn().mockReturnValue('$done'),
         runInput: jest.fn(),
       };
 
       await runOnResult(actions, 'test');
-      expect(actions.runSelect).toBeCalled();
+      expect(actions.runAutoComplete).toBeCalled();
       expect(actions.runInput).not.toBeCalled();
     });
 
     it('should execute chosen action', async () => {
       const actions = {
         after: {
-          '$keep': jest.fn()
+          $keep: jest.fn(),
         },
-        runSelect: jest.fn().mockReturnValue('$keep'),
+        runAutoComplete: jest.fn().mockReturnValue('$keep'),
         runInput: jest.fn().mockReturnValue('name'),
       };
 
       await runOnResult(actions, 'test');
-      expect(actions.runSelect).toBeCalled();
+      expect(actions.runAutoComplete).toBeCalled();
       expect(actions.runInput).toBeCalled();
       expect(actions.after.$keep).toBeCalledWith('name', 'test');
     });
