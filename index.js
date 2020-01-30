@@ -1,11 +1,13 @@
+'use strict';
 
 const { runCli } = require('./lib/process');
 
 const structure = {
   api: {
-    get: (id) => {
-      console.info(id);
-    },
+    get: (id) => ({
+      id,
+      props: true,
+    }),
   },
   utils: {
     func1: (arg1, arg2) => {

@@ -1,3 +1,4 @@
+'use strict';
 
 const { findFunction, prepareArgs, runThread } = require('./../lib/process');
 
@@ -47,7 +48,7 @@ describe('Process', () => {
     const functionMock = (arg1, arg2) => arg1 && arg2;
 
     const result = await prepareArgs(actions, functionMock, 'path');
-    expect(actions.runForm).toHaveBeenCalledWith('args', 'path {', ['arg1', 'arg2'], '  }');
+    expect(actions.runForm).toHaveBeenCalledWith('args', 'path', ['arg1', 'arg2']);
     expect(result.arg1).toEqual('value:arg1');
     expect(result.arg2).toEqual('value:arg2');
   });
