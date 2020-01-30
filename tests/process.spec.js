@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  findFunction, prepareArgs, runThread, runOnResult,
+  findFunction, collectArgsInput, runThread, runOnResult, prepareArgs,
 } = require('./../lib/process');
 
 describe('Process', () => {
@@ -49,7 +49,7 @@ describe('Process', () => {
     };
     const functionMock = (arg1, arg2) => arg1 && arg2;
 
-    const result = await prepareArgs(actions, functionMock, 'path');
+    const result = await collectArgsInput(actions, functionMock, 'path');
     expect(actions.runForm).toHaveBeenCalledWith('args', 'path', ['arg1', 'arg2']);
     expect(result.arg1).toEqual('value:arg1');
     expect(result.arg2).toEqual('value:arg2');
@@ -94,6 +94,38 @@ describe('Process', () => {
       expect(actions.runAutoComplete).toBeCalled();
       expect(actions.runInput).toBeCalled();
       expect(actions.after.$keep).toBeCalledWith('name', 'test');
+    });
+  });
+
+  describe('prepareArgs', () => {
+    it('should return array with plain args if no keyword passed', async () => {
+      const actions = {
+        runAutoComplete: jest.fn(),
+        resolve: {
+          listKept: jest.fn(),
+          get: jest.fn(),
+        },
+      };
+      const result = await prepareArgs(actions, { arg1: 'arg1:value', arg2: 'arg2:value' });
+      expect(result).toEqual(['arg1:value', 'arg2:value']);
+      expect(actions.resolve.listKept).not.toBeCalled();
+      expect(actions.runAutoComplete).not.toBeCalled();
+      expect(actions.resolve.get).not.toBeCalled();
+    });
+
+    it('should call resolve.get if $use keyword passed', async () => {
+      const actions = {
+        runAutoComplete: jest.fn(() => 'test'),
+        resolve: {
+          listKept: jest.fn(() => ['test']),
+          get: jest.fn(() => 'use:value'),
+        },
+      };
+      const result = await prepareArgs(actions, { arg1: '$use', arg2: 'arg2:value' });
+      expect(actions.resolve.listKept).toBeCalled();
+      expect(actions.runAutoComplete).toBeCalled();
+      expect(actions.resolve.get).toBeCalledWith('test');
+      expect(result).toEqual(['use:value', 'arg2:value']);
     });
   });
 });
