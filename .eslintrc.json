@@ -19,6 +19,7 @@
         "strict": "off",
         "no-await-in-loop": "off",
         "no-restricted-syntax": "off",
-        "max-len": "off"
+        "max-len": "off",
+        "no-use-before-define": "off"
     }
 }

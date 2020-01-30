@@ -157,5 +157,18 @@ describe('Process', () => {
       expect(actions.resolve.load).toBeCalledWith('test.json');
       expect(result).toEqual(['use:value', 'arg2:value']);
     });
+
+    it('should call another function if $func keyword passed', async () => {
+      const actions = {
+        runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
+        runForm: jest.fn().mockReturnValue({
+          arg1: 'value:arg1',
+          arg2: 'value:arg2',
+        }),
+      };
+      const result = await prepareArgs(actions, { arg1: '$func', arg2: 'arg2:value' }, mock);
+      expect(funcMock).toBeCalled();
+      expect(result).toEqual(['result', 'arg2:value']);
+    });
   });
 });
