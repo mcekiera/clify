@@ -7,6 +7,12 @@ const structure = {
     get: (id) => ({
       id,
       props: true,
+      data: {
+        content: {
+          header: true,
+          title: 'title',
+        },
+      },
     }),
   },
   utils: {

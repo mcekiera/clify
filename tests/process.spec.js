@@ -110,6 +110,23 @@ describe('Process', () => {
       expect(actions.runInput).toBeCalled();
       expect(actions.after.$save).toBeCalledWith('name', 'test');
     });
+
+    it('should execute chosen $extract action', async () => {
+      const actions = {
+        after: {},
+        runAutoComplete: jest.fn().mockReturnValueOnce('$extract').mockReturnValueOnce('$done'),
+        runInput: jest.fn().mockReturnValue('nested.property'),
+      };
+
+      const result = await runOnResult(actions, {
+        nested: {
+          property: 'value',
+        },
+      });
+      expect(actions.runAutoComplete).toBeCalledTimes(2);
+      expect(actions.runInput).toBeCalled();
+      expect(result).toEqual('value');
+    });
   });
 
   describe('prepareArgs', () => {
