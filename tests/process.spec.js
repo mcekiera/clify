@@ -69,6 +69,7 @@ describe('Process', () => {
   });
 
   describe('runOnResult', () => {
+    const choice = ['$done', '$keep', '$save'];
     it('should pass if $done action chosen', async () => {
       const actions = {
         after: {},
@@ -76,7 +77,7 @@ describe('Process', () => {
         runInput: jest.fn(),
       };
 
-      await runOnResult(actions, 'test');
+      await runOnResult(actions, choice, 'test');
       expect(actions.runAutoComplete).toBeCalled();
       expect(actions.runInput).not.toBeCalled();
     });
@@ -90,7 +91,7 @@ describe('Process', () => {
         runInput: jest.fn().mockReturnValue('name'),
       };
 
-      await runOnResult(actions, 'test');
+      await runOnResult(actions, choice, 'test');
       expect(actions.runAutoComplete).toBeCalled();
       expect(actions.runInput).toBeCalled();
       expect(actions.after.$keep).toBeCalledWith('name', 'test');
@@ -105,7 +106,7 @@ describe('Process', () => {
         runInput: jest.fn().mockReturnValue('name'),
       };
 
-      await runOnResult(actions, 'test');
+      await runOnResult(actions, choice, 'test');
       expect(actions.runAutoComplete).toBeCalled();
       expect(actions.runInput).toBeCalled();
       expect(actions.after.$save).toBeCalledWith('name', 'test');
@@ -118,7 +119,7 @@ describe('Process', () => {
         runInput: jest.fn().mockReturnValue('nested.property'),
       };
 
-      const result = await runOnResult(actions, {
+      const result = await runOnResult(actions, choice, {
         nested: {
           property: 'value',
         },
