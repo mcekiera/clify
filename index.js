@@ -1,10 +1,10 @@
 'use strict';
 
-const { prepareActions } = require('./lib/utils/actions');
+const { prepareActions, prepareStructure } = require('./lib/utils/helpers');
 const Store = require('./lib/utils/Store');
 const Cli = require('./lib/Cli');
 
-const structure = {
+const structureMock = {
   api: {
     get: (id) => ({
       id,
@@ -29,5 +29,9 @@ const structure = {
 
 const store = new Store();
 const actions = prepareActions(store);
-const cli = new Cli(structure, {}, actions);
-cli.run();
+prepareStructure(structureMock).then((structure) => {
+  const cli = new Cli(structure, {}, actions);
+  cli.run();
+}).catch((err) => {
+  console.error(err);
+});
