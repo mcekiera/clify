@@ -1,6 +1,8 @@
 'use strict';
 
-const { runCli } = require('./lib/process');
+const { prepareActions } = require('./lib/utils/actions');
+const Store = require('./lib/utils/Store');
+const Cli = require('./lib/Cli');
 
 const structure = {
   api: {
@@ -25,4 +27,7 @@ const structure = {
   },
 };
 
-runCli(structure);
+const store = new Store();
+const actions = prepareActions(store);
+const cli = new Cli(structure, {}, actions);
+cli.run();

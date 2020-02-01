@@ -1,6 +1,6 @@
 'use strict';
 
-const Store = require('./../../lib/utils/store');
+const Store = require('../../lib/utils/Store');
 
 describe('Utils Store:', () => {
   it('called with new should return class of Store object', () => {
