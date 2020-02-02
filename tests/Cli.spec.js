@@ -58,13 +58,13 @@ describe('Cli class', () => {
       expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(2, 'Select: prop1', 10, ['func', 'prop3', '<']);
     });
 
-    it.skip('should handle invalid input', async () => {
+    it('should handle invalid input', async () => {
       cli.actions = {
-        runAutoComplete: jest.fn().mockReturnValueOnce('invalid'),
+        runAutoComplete: jest.fn().mockReturnValueOnce('invalid').mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
       };
       // eslint-disable-next-line no-unused-vars
       const result = await cli.findFunction();
-      // TODO: implement
+      expect(result.func).toEqual(funcMock);
     });
   });
 

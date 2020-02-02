@@ -27,64 +27,64 @@ describe('Utils traverse:', () => {
 
   it('should properly return nested function', async () => {
     expect(gen.next()).toEqual({
-      value: ['prop1', 'prop2'],
+      value: { choice: ['prop1', 'prop2'], path: '' },
       done: false,
     });
 
     expect(gen.next('prop1')).toEqual({
-      value: ['func', 'prop3', '<'],
+      value: { choice: ['func', 'prop3', '<'], path: 'prop1' },
       done: false,
     });
 
     expect(gen.next('func')).toEqual({
-      value: funcMock,
+      value: { choice: funcMock, path: 'prop1.func' },
       done: true,
     });
   });
 
   it('should allow to back up in tree with < operator', async () => {
     expect(gen.next()).toEqual({
-      value: ['prop1', 'prop2'],
+      value: { choice: ['prop1', 'prop2'], path: '' },
       done: false,
     });
 
     expect(gen.next('prop1')).toEqual({
-      value: ['func', 'prop3', '<'],
+      value: { choice: ['func', 'prop3', '<'], path: 'prop1' },
       done: false,
     });
 
     expect(gen.next('prop3')).toEqual({
-      value: ['prop5', '<'],
+      value: { choice: ['prop5', '<'], path: 'prop1.prop3' },
       done: false,
     });
 
     expect(gen.next('prop5')).toEqual({
-      value: ['<'],
+      value: { choice: ['<'], path: 'prop1.prop3.prop5' },
       done: false,
     });
 
     expect(gen.next('<')).toEqual({
-      value: ['prop5', '<'],
+      value: { choice: ['prop5', '<'], path: 'prop1.prop3' },
       done: false,
     });
 
     expect(gen.next('<')).toEqual({
-      value: ['func', 'prop3', '<'],
+      value: { choice: ['func', 'prop3', '<'], path: 'prop1' },
       done: false,
     });
 
     expect(gen.next('<')).toEqual({
-      value: ['prop1', 'prop2'],
+      value: { choice: ['prop1', 'prop2'], path: '' },
       done: false,
     });
 
     expect(gen.next('prop2')).toEqual({
-      value: ['func2', 'prop4', '<'],
+      value: { choice: ['func2', 'prop4', '<'], path: 'prop2' },
       done: false,
     });
 
     expect(gen.next('func2')).toEqual({
-      value: funcMock2,
+      value: { choice: funcMock2, path: 'prop2.func2' },
       done: true,
     });
   });
