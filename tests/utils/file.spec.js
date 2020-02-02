@@ -12,14 +12,14 @@ jest.mock('fs', () => ({
 }));
 
 describe('Utils file:', () => {
-  it('should call fn on load call', async () => {
+  it('should call fn on LOAD call', async () => {
     await save('name', { test: 'test' });
     expect(fs.existsSync).toBeCalled();
     expect(fs.mkdirSync).toBeCalled();
     expect(fs.writeFileSync).toBeCalled();
   });
 
-  it('should call fs on load call', async () => {
+  it('should call fs on LOAD call', async () => {
     const result = await load('name.json');
     expect(fs.readFile).toBeCalledWith('./temp/name.json', expect.any(Function));
     expect(result.test).toEqual('test');

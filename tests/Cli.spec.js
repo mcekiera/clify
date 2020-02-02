@@ -1,4 +1,5 @@
 const Cli = require('./../lib/Cli');
+const { Actions } = require('./../lib/config/constants');
 
 describe('Cli class', () => {
   let cli;
@@ -53,8 +54,8 @@ describe('Cli class', () => {
 
       expect(func).toEqual(funcMock);
       expect(path).toEqual('prop1.func');
-      expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(1, 'path', 'Select: ', 10, ['prop1', 'prop2']);
-      expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(2, 'path', 'Select: prop1', 10, ['func', 'prop3', '<']);
+      expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(1, 'Select: ', 10, ['prop1', 'prop2']);
+      expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(2, 'Select: prop1', 10, ['func', 'prop3', '<']);
     });
 
     it.skip('should handle invalid input', async () => {
@@ -85,11 +86,11 @@ describe('Cli class', () => {
   });
 
   describe('runOnResult', () => {
-    const choice = ['$done', '$keep', '$save'];
-    it('should pass if $done action chosen', async () => {
+    const choice = [Actions.DONE, Actions.KEEP, Actions.SAVE];
+    it('should pass if DONE action chosen', async () => {
       cli.actions = {
         after: {},
-        runAutoComplete: jest.fn().mockReturnValue('$done'),
+        runAutoComplete: jest.fn().mockReturnValue(Actions.DONE),
         runInput: jest.fn(),
       };
 
@@ -98,40 +99,40 @@ describe('Cli class', () => {
       expect(cli.actions.runInput).not.toBeCalled();
     });
 
-    it('should execute chosen $keep action', async () => {
+    it('should execute chosen KEEP action', async () => {
       cli.actions = {
         after: {
-          $keep: jest.fn(),
+          [Actions.KEEP]: jest.fn(),
         },
-        runAutoComplete: jest.fn().mockReturnValue('$keep'),
+        runAutoComplete: jest.fn().mockReturnValue(Actions.KEEP),
         runInput: jest.fn().mockReturnValue('name'),
       };
 
       await cli.runOnResult(choice, 'test');
       expect(cli.actions.runAutoComplete).toBeCalled();
       expect(cli.actions.runInput).toBeCalled();
-      expect(cli.actions.after.$keep).toBeCalledWith('name', 'test');
+      expect(cli.actions.after[Actions.KEEP]).toBeCalledWith('name', 'test');
     });
 
-    it('should execute chosen $save action', async () => {
+    it('should execute chosen SAVE action', async () => {
       cli.actions = {
         after: {
-          $save: jest.fn(),
+          [Actions.SAVE]: jest.fn(),
         },
-        runAutoComplete: jest.fn().mockReturnValue('$save'),
+        runAutoComplete: jest.fn().mockReturnValue(Actions.SAVE),
         runInput: jest.fn().mockReturnValue('name'),
       };
 
       await cli.runOnResult(choice, 'test');
       expect(cli.actions.runAutoComplete).toBeCalled();
       expect(cli.actions.runInput).toBeCalled();
-      expect(cli.actions.after.$save).toBeCalledWith('name', 'test');
+      expect(cli.actions.after[Actions.SAVE]).toBeCalledWith('name', 'test');
     });
 
-    it('should execute chosen $extract action', async () => {
+    it('should execute chosen EXTRACT action', async () => {
       cli.actions = {
         after: {},
-        runAutoComplete: jest.fn().mockReturnValueOnce('$extract').mockReturnValueOnce('$done'),
+        runAutoComplete: jest.fn().mockReturnValueOnce(Actions.EXTRACT).mockReturnValueOnce(Actions.DONE),
         runInput: jest.fn().mockReturnValue('nested.property'),
       };
 
@@ -162,7 +163,7 @@ describe('Cli class', () => {
       expect(cli.actions.resolve.get).not.toBeCalled();
     });
 
-    it('should call resolve.get if $use keyword passed', async () => {
+    it('should call resolve.get if USE keyword passed', async () => {
       cli.actions = {
         runAutoComplete: jest.fn(() => 'test'),
         resolve: {
@@ -170,14 +171,14 @@ describe('Cli class', () => {
           get: jest.fn(() => 'use:value'),
         },
       };
-      const result = await cli.prepareArgs({ arg1: '$use', arg2: 'arg2:value' });
+      const result = await cli.prepareArgs({ arg1: Actions.USE, arg2: 'arg2:value' });
       expect(cli.actions.resolve.listKept).toBeCalled();
       expect(cli.actions.runAutoComplete).toBeCalled();
       expect(cli.actions.resolve.get).toBeCalledWith('test');
       expect(result).toEqual(['use:value', 'arg2:value']);
     });
 
-    it('should call resolve.load if $file keyword passed', async () => {
+    it('should call resolve.load if LOAD keyword passed', async () => {
       cli.actions = {
         runAutoComplete: jest.fn(() => 'test.json'),
         resolve: {
@@ -185,14 +186,14 @@ describe('Cli class', () => {
           load: jest.fn(() => 'use:value'),
         },
       };
-      const result = await cli.prepareArgs({ arg1: '$file', arg2: 'arg2:value' });
+      const result = await cli.prepareArgs({ arg1: Actions.LOAD, arg2: 'arg2:value' });
       expect(cli.actions.resolve.listFiles).toBeCalled();
       expect(cli.actions.runAutoComplete).toBeCalled();
       expect(cli.actions.resolve.load).toBeCalledWith('test.json');
       expect(result).toEqual(['use:value', 'arg2:value']);
     });
 
-    it('should call another function if $func keyword passed', async () => {
+    it('should call another function if $FUNC keyword passed', async () => {
       cli.actions = {
         runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
         runForm: jest.fn().mockReturnValue({
@@ -200,7 +201,7 @@ describe('Cli class', () => {
           arg2: 'value:arg2',
         }),
       };
-      const result = await cli.prepareArgs({ arg1: '$func', arg2: 'arg2:value' }, mock);
+      const result = await cli.prepareArgs({ arg1: Actions.FUNC, arg2: 'arg2:value' }, mock);
       expect(funcMock).toBeCalled();
       expect(result).toEqual(['result', 'arg2:value']);
     });
