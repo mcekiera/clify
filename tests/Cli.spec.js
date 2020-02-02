@@ -148,6 +148,8 @@ describe('Cli class', () => {
   });
 
   describe('prepareArgs', () => {
+    // TODO: divide between prepareArgs and resolveArg
+
     it('should return array with plain args if no keyword passed', async () => {
       cli.actions = {
         runAutoComplete: jest.fn(),
