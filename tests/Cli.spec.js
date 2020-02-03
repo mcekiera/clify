@@ -6,7 +6,15 @@ describe('Cli class', () => {
   let mock;
   let funcMock;
   let funcMock2;
+  let resolve;
+
   beforeEach(() => {
+    resolve = {
+      listFiles: jest.fn(),
+      listKept: jest.fn(),
+      list: jest.fn(),
+      get: jest.fn(),
+    };
     funcMock = jest.fn(() => 'result');
     funcMock2 = jest.fn();
     mock = {
@@ -22,7 +30,9 @@ describe('Cli class', () => {
       },
     };
 
-    cli = new Cli(mock, {}, {});
+    cli = new Cli(mock, {}, {
+      resolve,
+    });
   });
 
   afterEach(() => {
@@ -32,12 +42,15 @@ describe('Cli class', () => {
   describe('runThread', () => {
     it('should execute chosen function', async () => {
       cli.actions = {
+        ...cli.actions,
         runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
         runForm: jest.fn().mockReturnValue({
           arg1: 'value:arg1',
           arg2: 'value:arg2',
         }),
       };
+
+      funcMock.toString = () => 'function test(arg1, arg2) {}`';
 
       const result = await cli.runThread();
       expect(funcMock).toBeCalledWith('value:arg1', 'value:arg2');
@@ -48,18 +61,20 @@ describe('Cli class', () => {
   describe('findFunction', () => {
     it('should properly return function', async () => {
       cli.actions = {
+        ...cli.actions,
         runAutoComplete: jest.fn().mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
       };
       const { func, path } = await cli.findFunction();
 
       expect(func).toEqual(funcMock);
       expect(path).toEqual('prop1.func');
-      expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(1, 'Select: ', 10, ['prop1', 'prop2']);
+      expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(1, 'Select: ', 10, ['prop1', 'prop2', '_']);
       expect(cli.actions.runAutoComplete).toHaveBeenNthCalledWith(2, 'Select: prop1', 10, ['func', 'prop3', '<']);
     });
 
     it('should handle invalid input', async () => {
       cli.actions = {
+        ...cli.actions,
         runAutoComplete: jest.fn().mockReturnValueOnce('invalid').mockReturnValueOnce('prop1').mockReturnValueOnce('func'),
       };
       // eslint-disable-next-line no-unused-vars
@@ -71,6 +86,7 @@ describe('Cli class', () => {
   describe('collectArgsInput', () => {
     it('should properly ask for function arg', async () => {
       cli.actions = {
+        ...cli.actions,
         runForm: jest.fn().mockReturnValue({
           arg1: 'value:arg1',
           arg2: 'value:arg2',
@@ -85,10 +101,38 @@ describe('Cli class', () => {
     });
   });
 
+  describe('preview', () => {
+    it('should return IGNORE if non of type found', async () => {
+      const listFunc = jest.fn(() => []);
+      const getFunc = jest.fn();
+
+      const result = await cli.preview({ listFunc, getFunc });
+      expect(result.toString()).toEqual(Symbol('ignore').toString());
+      expect(listFunc).toBeCalled();
+      expect(getFunc).not.toBeCalled();
+    });
+
+    it('should call autocomplete and return value of chosen variable', async () => {
+      const listFunc = jest.fn(() => ['test', 'test2']);
+      const getFunc = jest.fn(() => ({ test: 'test' }));
+      cli.actions = {
+        runAutoComplete: jest.fn().mockReturnValueOnce('test'),
+        after: {},
+      };
+
+      const result = await cli.preview({ listFunc, getFunc });
+      expect(result.toString()).toEqual(Symbol('ignore').toString());
+      expect(listFunc).toBeCalled();
+      expect(cli.actions.runAutoComplete).toBeCalled();
+      expect(getFunc).toBeCalledWith('test');
+    });
+  });
+
   describe('runOnResult', () => {
     const choice = [Actions.DONE, Actions.KEEP, Actions.SAVE];
     it('should pass if DONE action chosen', async () => {
       cli.actions = {
+        ...cli.actions,
         after: {},
         runAutoComplete: jest.fn().mockReturnValue(Actions.DONE),
         runInput: jest.fn(),
@@ -101,6 +145,7 @@ describe('Cli class', () => {
 
     it('should execute chosen KEEP action', async () => {
       cli.actions = {
+        ...cli.actions,
         after: {
           [Actions.KEEP]: jest.fn(),
         },
@@ -116,6 +161,7 @@ describe('Cli class', () => {
 
     it('should execute chosen SAVE action', async () => {
       cli.actions = {
+        ...cli.actions,
         after: {
           [Actions.SAVE]: jest.fn(),
         },
@@ -131,6 +177,7 @@ describe('Cli class', () => {
 
     it('should execute chosen EXTRACT action', async () => {
       cli.actions = {
+        ...cli.actions,
         after: {},
         runAutoComplete: jest.fn().mockReturnValueOnce(Actions.EXTRACT).mockReturnValueOnce(Actions.DONE),
         runInput: jest.fn().mockReturnValue('nested.property'),
@@ -202,6 +249,7 @@ describe('Cli class', () => {
           arg1: 'value:arg1',
           arg2: 'value:arg2',
         }),
+        resolve,
       };
       const result = await cli.prepareArgs({ arg1: Actions.FUNC, arg2: 'arg2:value' }, mock);
       expect(funcMock).toBeCalled();
