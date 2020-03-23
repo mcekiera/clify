@@ -25,6 +25,6 @@ module.exports = {
     ClearedForm,
     ClearedSelect,
     ClearedAutoComplete,
-    ClearedInput
-  }
+    ClearedInput,
+  },
 };

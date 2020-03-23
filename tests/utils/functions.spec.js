@@ -51,5 +51,12 @@ describe('Utils functions:', () => {
       };
       expect(getArgNames(func)).toEqual(['st', 'nd']);
     });
+
+    it('handle async functions', () => {
+      const func = async function func(st, nd = 0) {
+        return st + nd;
+      };
+      expect(getArgNames(func)).toEqual(['st', 'nd']);
+    });
   });
 });
